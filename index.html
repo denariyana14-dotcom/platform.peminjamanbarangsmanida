@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Peminjaman Barang Sekolah</title>
+    <!-- Menggunakan Tailwind CSS untuk styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icon Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8; /* Latar belakang biru muda yang lembut */
+        }
+        /* Style untuk transisi dan elemen kustom */
+        #notification, #login-screen, #app-screen, .modal {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+        .modal-overlay {
+            background-color: rgba(0,0,0,0.6);
+        }
+        .form-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        .btn-primary {
+            background-color: #4f46e5; /* Indigo */
+        }
+        .btn-primary:hover {
+            background-color: #4338ca;
+        }
+        .btn-secondary {
+             background-color: #10b981; /* Emerald */
+        }
+        .btn-secondary:hover {
+            background-color: #059669;
+        }
+        /* Latar belakang dengan pola geometris */
+        .login-bg {
+            background-color: #eef2ff;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23c7d2fe' fill-opacity='0.4'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3Cpath d='M6 5V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5h9V0h1v5h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h-1v-9h-9v9h-1v-9h-9v9h-1v-9h-9v9h-1v-9h-9v9h-1v-9h-9v9h-1v-9h-9v9h-1v-9h-9v9H0v-1h4v-9H0v-1h4v-9H0v-1h4v-9H0v-1h4v-9H0v-1h4v-9H0v-1h4v-9H0v-1h4v-9H0v-1h4V0h1v4h9V0h1v4h9V0h1v4h9V0h1v4h9V0h1v4h9V0h1v4h9V0h1v4h9V0h1v4h5v1h-5v9h5v1h-5v9h5v1h-5v9h5v1h-5v9h5v1h-5v9h5v1h-5v9h5v1h-5v9h5v1h-5v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #report-screen, #report-screen * {
+                visibility: visible;
+            }
+            #report-screen {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== LAYAR LOGIN ===== -->
+    <div id="login-screen" class="min-h-screen flex flex-col items-center justify-center p-4 login-bg">
+        <div class="max-w-md w-full text-center mb-6">
+            <div class="inline-block bg-white p-4 rounded-full shadow-md">
+                <i class="fas fa-school fa-2x text-indigo-600"></i>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mt-4">Inventaris Sekolah</h1>
+            <p class="text-lg text-gray-600 mt-2">Platform Peminjaman Barang</p>
+        </div>
+
+        <div class="max-w-md w-full form-container">
+            <!-- Form Login Siswa -->
+            <div id="student-login">
+                <h2 class="text-2xl font-semibold mb-6 text-center text-gray-700">Login sebagai Siswa</h2>
+                <form id="studentLoginForm">
+                    <div class="space-y-4">
+                        <div class="relative">
+                             <i class="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="studentName" class="pl-12 w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required placeholder="Masukkan Nama Lengkap Anda">
+                        </div>
+                        <div class="relative">
+                             <i class="fas fa-chalkboard-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="studentClass" class="pl-12 w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required placeholder="Masukkan Kelas Anda (Contoh: XII E)">
+                        </div>
+                        <button type="submit" class="w-full text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 btn-primary flex items-center justify-center gap-2">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>Masuk</span>
+                        </button>
+                    </div>
+                </form>
+                <div class="text-center mt-6">
+                    <button id="showAdminLoginBtn" class="text-sm text-indigo-600 hover:underline font-medium">Masuk sebagai Admin?</button>
+                </div>
+            </div>
+            
+            <!-- Form Login Admin (tersembunyi) -->
+            <div id="admin-login" class="hidden">
+                 <h2 class="text-2xl font-semibold mb-6 text-center text-gray-700">Login sebagai Admin</h2>
+                <form id="adminLoginForm">
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <i class="fas fa-user-shield absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="adminUser" value="adminsekolah.sma1dramaga" class="pl-12 w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                         <div class="relative">
+                            <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                            <input type="password" id="adminPass" class="pl-12 w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Masukkan Password">
+                        </div>
+                        <button type="submit" class="w-full text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 btn-secondary flex items-center justify-center gap-2">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>Masuk</span>
+                        </button>
+                    </div>
+                </form>
+                 <div class="text-center mt-6">
+                    <button id="showStudentLoginBtn" class="text-sm text-indigo-600 hover:underline font-medium">Bukan Admin?</button>
+                </div>
+            </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-6">Barang di pinjam,tanggung jawab dipegang. Kita jaga bersama!</p>
+        <p class="text-xs text-gray-700 mt-2 font-semibold">by Dena Riyana XII.E</p>
+    </div>
+
+    <!-- ===== APLIKASI UTAMA (tersembunyi) ===== -->
+    <div id="app-screen" class="hidden opacity-0">
+        <div class="container mx-auto p-4 sm:p-6 md:p-8">
+            <header class="flex flex-wrap justify-between items-center mb-8 pb-4 border-b-2 border-gray-200">
+                <div>
+                     <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Dashboard Inventaris</h1>
+                     <p id="welcomeMessage" class="text-md text-gray-600 mt-1"></p>
+                </div>
+                <button id="logoutButton" class="mt-4 sm:mt-0 flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Keluar</span>
+                </button>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Kolom Kiri -->
+                <div class="lg:col-span-1 space-y-8">
+                    <!-- Panel Barang Pinjaman Siswa -->
+                    <div id="my-loans-wrapper" class="hidden bg-white p-6 rounded-xl shadow-lg">
+                        <h2 class="text-2xl font-semibold mb-4 border-b pb-3 flex items-center gap-3 text-gray-700"><i class="fas fa-box-open text-sky-500"></i>Barang Pinjaman Saya</h2>
+                        <div id="myLoansList" class="space-y-4 pt-2">
+                           <!-- Daftar pinjaman siswa akan dirender di sini -->
+                        </div>
+                    </div>
+                    
+                    <!-- Form Peminjaman -->
+                    <div id="loan-form-wrapper" class="bg-white p-6 rounded-xl shadow-lg">
+                        <h2 class="text-2xl font-semibold mb-4 border-b pb-3 flex items-center gap-3 text-gray-700"><i class="fas fa-edit text-indigo-500"></i>Ajukan Peminjaman</h2>
+                        <form id="loanForm" class="space-y-4 pt-2">
+                            <div>
+                                <label for="borrowerName" class="block text-sm font-medium text-gray-700">Nama Peminjam</label>
+                                <input type="text" id="borrowerName" name="borrowerName" class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm" required>
+                            </div>
+                             <div>
+                                <label for="borrowerClass" class="block text-sm font-medium text-gray-700">Kelas</label>
+                                <input type="text" id="borrowerClass" name="borrowerClass" class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm" required>
+                            </div>
+                            <div>
+                                <label for="itemSelect" class="block text-sm font-medium text-gray-700">Pilih Barang</label>
+                                <select id="itemSelect" name="itemSelect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" required></select>
+                            </div>
+                             <div>
+                                <label for="loanDate" class="block text-sm font-medium text-gray-700">Tanggal Pinjam</label>
+                                <input type="date" id="loanDate" name="loanDate" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                            </div>
+                            <button type="submit" class="w-full btn-primary text-white font-bold py-2.5 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center justify-center gap-2">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Ajukan Pinjaman</span>
+                            </button>
+                        </form>
+                    </div>
+                    <!-- Kontrol Admin -->
+                    <div id="admin-controls" class="hidden bg-white p-6 rounded-xl shadow-lg">
+                        <h2 class="text-2xl font-semibold mb-4 border-b pb-3 flex items-center gap-3 text-gray-700"><i class="fas fa-cogs text-emerald-500"></i>Panel Admin</h2>
+                        <div class="space-y-3 pt-2">
+                             <button id="showAddItemModalBtn" class="w-full btn-secondary text-white font-bold py-2.5 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center justify-center gap-2">
+                                 <i class="fas fa-plus-circle"></i>
+                                 <span>Tambah Barang Baru</span>
+                            </button>
+                             <button id="generateReportBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2.5 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 flex items-center justify-center gap-2">
+                                 <i class="fas fa-file-alt"></i>
+                                 <span>Buat Laporan Kerusakan</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kolom Kanan: Daftar Inventaris -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="text-2xl font-semibold mb-4 border-b pb-3 flex items-center gap-3 text-gray-700"><i class="fas fa-clipboard-list text-gray-500"></i>Daftar Semua Barang</h2>
+                    <div class="overflow-x-auto mt-2">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead id="inventoryTableHead" class="bg-gray-50">
+                                <!-- Headers generated by JS -->
+                            </thead>
+                            <tbody id="inventoryTableBody" class="bg-white divide-y divide-gray-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ===== LAYAR LAPORAN (tersembunyi) ===== -->
+    <div id="report-screen" class="hidden opacity-0 bg-white p-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-8">
+                <h1 class="text-2xl font-bold">LAPORAN KERUSAKAN BARANG INVENTARIS</h1>
+                <h2 class="text-lg">SMA NEGERI 1 DRAMAGA</h2>
+                <p id="reportDate" class="text-sm"></p>
+            </div>
+            
+            <div id="reportContent">
+                <!-- Konten laporan akan dirender di sini -->
+            </div>
+
+            <div class="mt-20 text-sm">
+                <div class="flex justify-between">
+                    <div class="text-center">
+                        <p>Mengetahui,</p>
+                        <p class="font-semibold">Kepala Sekolah</p>
+                        <br><br><br>
+                        <p>(_________________________)</p>
+                    </div>
+                    <div class="text-center">
+                        <p>Dramaga, <span id="reportDateSignature"></span></p>
+                        <p class="font-semibold">Operator Sekolah</p>
+                        <br><br><br>
+                        <p>(_________________________)</p>
+                    </div>
+                </div>
+            </div>
+             <div class="mt-12 text-center space-x-4 no-print">
+                <button id="backToDashboardBtn" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg">
+                    <i class="fas fa-arrow-left"></i> Kembali
+                </button>
+                <button id="printReportBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg">
+                    <i class="fas fa-print"></i> Cetak Laporan
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ===== MODAL TAMBAH BARANG (tersembunyi) ===== -->
+    <div id="addItemModal" class="hidden modal fixed inset-0 z-50 flex items-center justify-center modal-overlay">
+        <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md m-4 transform transition-all -translate-y-10 opacity-0">
+             <div class="flex justify-between items-center border-b pb-3 mb-4">
+                 <h2 class="text-2xl font-semibold text-gray-700">Tambah Barang Baru</h2>
+                 <button class="close-modal-btn text-2xl text-gray-500 hover:text-gray-800">&times;</button>
+             </div>
+             <form id="addItemForm" class="space-y-4 pt-2">
+                 <div>
+                    <label for="newItemName" class="block text-sm font-medium text-gray-700">Nama Barang</label>
+                    <input type="text" id="newItemName" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" required placeholder="Contoh: Proyektor Mini">
+                </div>
+                 <div>
+                    <label for="newItemDesc" class="block text-sm font-medium text-gray-700">Deskripsi</label>
+                    <input type="text" id="newItemDesc" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" required placeholder="Contoh: Anker Nebula Capsule">
+                </div>
+                <div class="flex justify-end gap-4 pt-4">
+                    <button type="button" class="cancel-btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">Batal</button>
+                    <button type="submit" class="btn-secondary text-white font-bold py-2 px-4 rounded-lg">Simpan</button>
+                </div>
+             </form>
+        </div>
+    </div>
+    
+    <!-- ===== MODAL LAPORAN KERUSAKAN (tersembunyi) ===== -->
+    <div id="damageReportModal" class="hidden modal fixed inset-0 z-50 flex items-center justify-center modal-overlay">
+        <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md m-4 transform transition-all -translate-y-10 opacity-0">
+             <div class="flex justify-between items-center border-b pb-3 mb-4">
+                 <h2 class="text-2xl font-semibold text-gray-700">Laporkan Kerusakan</h2>
+                 <button class="close-modal-btn text-2xl text-gray-500 hover:text-gray-800">&times;</button>
+             </div>
+             <form id="damageReportForm" class="space-y-4 pt-2">
+                 <input type="hidden" id="damagedItemId">
+                 <div>
+                    <label for="damageDescription" class="block text-sm font-medium text-gray-700">Jelaskan Kerusakan</label>
+                    <textarea id="damageDescription" rows="4" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" required placeholder="Contoh: Lensa proyektor buram dan tidak bisa fokus..."></textarea>
+                </div>
+                <div class="flex justify-end gap-4 pt-4">
+                    <button type="button" class="cancel-btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">Batal</button>
+                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">Kirim Laporan</button>
+                </div>
+             </form>
+        </div>
+    </div>
+
+
+    <!-- Elemen Notifikasi -->
+    <div id="notification" class="fixed top-5 right-5 text-white py-3 px-5 rounded-lg shadow-lg opacity-0 transform -translate-y-10 flex items-center gap-3">
+        <i id="notification-icon" class="fas"></i>
+        <p id="notification-message"></p>
+    </div>
+
+    <script>
+        // === Data & State Aplikasi ===
+        let currentUser = null; // {name: '...', class: '...', role: '...'}
+        let inventory = [
+            { id: 1, name: 'Proyektor LCD', description: 'Epson EB-S41, 3300 Lumens', status: 'Tersedia', borrower: null, borrowerClass: null, loanDate: null, returnDate: null, extensionRequested: false, damageReport: null },
+            { id: 2, name: 'Laptop A', description: 'Dell Latitude, Core i5, 8GB RAM', status: 'Tersedia', borrower: null, borrowerClass: null, loanDate: null, returnDate: null, extensionRequested: false, damageReport: null },
+            { id: 3, name: 'Kamera DSLR', description: 'Canon EOS 1500D Kit', status: 'Tersedia', borrower: null, borrowerClass: null, loanDate: null, returnDate: null, extensionRequested: false, damageReport: null },
+            { id: 4, name: 'Speaker Aktif', description: 'Polytron PAS 8EF22', status: 'Tersedia', borrower: null, borrowerClass: null, loanDate: null, returnDate: null, extensionRequested: false, damageReport: null },
+            { id: 5, name: 'Papan Tulis Digital', description: 'IQBoard 82 inch', status: 'Tersedia', borrower: null, borrowerClass: null, loanDate: null, returnDate: null, extensionRequested: false, damageReport: null },
+            { id: 6, name: 'Mikrofon Wireless', description: 'Shure BLX24/PG58', status: 'Tersedia', borrower: null, borrowerClass: null, loanDate: null, returnDate: null, extensionRequested: false, damageReport: null },
+            { id: 7, name: 'Laptop B', description: 'Lenovo ThinkPad, Core i7, 16GB RAM', status: 'Tersedia', borrower: null, borrowerClass: null, loanDate: null, returnDate: null, extensionRequested: false, damageReport: null },
+        ];
+
+        // === Selektor DOM ===
+        const loginScreen = document.getElementById('login-screen');
+        const appScreen = document.getElementById('app-screen');
+        const reportScreen = document.getElementById('report-screen');
+        const studentLoginForm = document.getElementById('studentLoginForm');
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        const studentNameInput = document.getElementById('studentName');
+        const studentClassInput = document.getElementById('studentClass');
+        const adminUserInput = document.getElementById('adminUser');
+        const adminPassInput = document.getElementById('adminPass');
+        const showAdminLoginBtn = document.getElementById('showAdminLoginBtn');
+        const showStudentLoginBtn = document.getElementById('showStudentLoginBtn');
+        const studentLoginDiv = document.getElementById('student-login');
+        const adminLoginDiv = document.getElementById('admin-login');
+        const logoutButton = document.getElementById('logoutButton');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const adminControls = document.getElementById('admin-controls');
+        const loanFormWrapper = document.getElementById('loan-form-wrapper');
+        const myLoansWrapper = document.getElementById('my-loans-wrapper');
+        const myLoansList = document.getElementById('myLoansList');
+        
+        const tableHead = document.getElementById('inventoryTableHead');
+        const tableBody = document.getElementById('inventoryTableBody');
+        const itemSelect = document.getElementById('itemSelect');
+        const loanForm = document.getElementById('loanForm');
+        const borrowerNameInput = document.getElementById('borrowerName');
+        const borrowerClassInput = document.getElementById('borrowerClass');
+        const loanDateInput = document.getElementById('loanDate');
+        
+        const notification = document.getElementById('notification');
+        const notificationMessage = document.getElementById('notification-message');
+        const notificationIcon = document.getElementById('notification-icon');
+        
+        const addItemModal = document.getElementById('addItemModal');
+        const showAddItemModalBtn = document.getElementById('showAddItemModalBtn');
+        const addItemForm = document.getElementById('addItemForm');
+        
+        const damageReportModal = document.getElementById('damageReportModal');
+        const damageReportForm = document.getElementById('damageReportForm');
+        const damagedItemIdInput = document.getElementById('damagedItemId');
+        const damageDescriptionInput = document.getElementById('damageDescription');
+
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        const backToDashboardBtn = document.getElementById('backToDashboardBtn');
+        const printReportBtn = document.getElementById('printReportBtn');
+        const reportDateEl = document.getElementById('reportDate');
+        const reportDateSignatureEl = document.getElementById('reportDateSignature');
+        const reportContentEl = document.getElementById('reportContent');
+
+
+        // === Fungsi Login & Logout ===
+        function handleStudentLogin(e) {
+            e.preventDefault();
+            const name = studentNameInput.value.trim();
+            const studentClass = studentClassInput.value.trim();
+            if (name && studentClass) {
+                currentUser = { name: name, class: studentClass, role: 'siswa' };
+                showApp();
+            }
+        }
+        
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const user = adminUserInput.value.trim();
+            const pass = adminPassInput.value.trim();
+            if (user === 'adminsekolah.sma1dramaga' && pass === '051908') {
+                currentUser = { name: 'Admin Sekolah', role: 'admin' };
+                showApp();
+            } else {
+                showNotification('Username atau password Admin salah!', false);
+            }
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            loginScreen.classList.remove('hidden');
+            appScreen.classList.add('opacity-0');
+            reportScreen.classList.add('hidden');
+            setTimeout(() => {
+                appScreen.classList.add('hidden');
+                loginScreen.classList.remove('opacity-0');
+                adminControls.classList.add('hidden');
+                studentLoginForm.reset();
+            }, 300);
+        }
+        
+        function showApp() {
+            welcomeMessage.textContent = `Selamat datang, ${currentUser.name}!`;
+            borrowerNameInput.value = currentUser.name;
+            
+            if (currentUser.role === 'admin') {
+                adminControls.classList.remove('hidden');
+                loanFormWrapper.classList.add('hidden');
+                myLoansWrapper.classList.add('hidden');
+            } else { // Siswa
+                adminControls.classList.add('hidden');
+                loanFormWrapper.classList.remove('hidden');
+                myLoansWrapper.classList.remove('hidden');
+                borrowerNameInput.setAttribute('readonly', true);
+                borrowerNameInput.classList.add('bg-gray-100');
+                borrowerClassInput.value = currentUser.class;
+                borrowerClassInput.setAttribute('readonly', true);
+                borrowerClassInput.classList.add('bg-gray-100');
+            }
+            
+            appScreen.classList.remove('hidden');
+            reportScreen.classList.add('hidden');
+            setTimeout(() => {
+                loginScreen.classList.add('hidden');
+                appScreen.classList.remove('opacity-0');
+            }, 100);
+            renderAll();
+        }
+
+        // === Fungsi Modal ===
+        function openModal(modal) {
+            const modalContent = modal.querySelector('div');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('-translate-y-10', 'opacity-0');
+                modalContent.classList.add('translate-y-0', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal(modal) {
+            const modalContent = modal.querySelector('div');
+            modalContent.classList.remove('translate-y-0', 'opacity-100');
+            modalContent.classList.add('-translate-y-10', 'opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        // === Fungsi CRUD & Manajemen Barang ===
+        function handleAddItem(e){
+            e.preventDefault();
+            const name = document.getElementById('newItemName').value.trim();
+            const desc = document.getElementById('newItemDesc').value.trim();
+            
+            if(name && desc){
+                const newItem = {
+                    id: inventory.length > 0 ? Math.max(...inventory.map(i => i.id)) + 1 : 1,
+                    name: name,
+                    description: desc,
+                    status: 'Tersedia',
+                    borrower: null, borrowerClass: null, loanDate: null, returnDate: null, extensionRequested: false, damageReport: null
+                };
+                inventory.push(newItem);
+                showNotification(`Barang "${name}" berhasil ditambahkan.`, true);
+                closeModal(addItemModal);
+                addItemForm.reset();
+                renderAll();
+            }
+        }
+        
+        window.openDamageReportModal = function(itemId) {
+            damagedItemIdInput.value = itemId;
+            openModal(damageReportModal);
+        }
+        
+        function handleDamageReport(e) {
+            e.preventDefault();
+            const itemId = parseInt(damagedItemIdInput.value);
+            const reportText = damageDescriptionInput.value.trim();
+            
+            const item = inventory.find(i => i.id === itemId);
+            if (item && reportText) {
+                item.status = 'Rusak';
+                item.damageReport = reportText;
+                // Simpan siapa yang melaporkan
+                item.borrower = `Dilaporkan oleh: ${item.borrower}`;
+                showNotification(`Laporan kerusakan untuk "${item.name}" telah dikirim.`, true);
+                closeModal(damageReportModal);
+                damageReportForm.reset();
+                renderAll();
+            }
+        }
+
+        function borrowItem(e) {
+            e.preventDefault();
+            const borrowerName = borrowerNameInput.value.trim();
+            const borrowerClass = borrowerClassInput.value.trim();
+            const itemId = parseInt(itemSelect.value);
+            const loanDate = loanDateInput.value;
+
+            if (!borrowerName || !borrowerClass || !itemId || !loanDate) {
+                showNotification('Harap isi semua kolom!', false);
+                return;
+            }
+            const item = inventory.find(i => i.id === itemId);
+            if (item && item.status === 'Tersedia') {
+                const loanDateObj = new Date(loanDate);
+                loanDateObj.setDate(loanDateObj.getDate() + 7); // Durasi pinjam 7 hari
+                
+                item.status = 'Dipinjam';
+                item.borrower = borrowerName;
+                item.borrowerClass = borrowerClass;
+                item.loanDate = loanDate;
+                item.returnDate = loanDateObj.toISOString().split('T')[0];
+                item.extensionRequested = false;
+                item.damageReport = null;
+
+                showNotification(`"${item.name}" berhasil dipinjam.`, true);
+                loanForm.reset(); // Kosongkan form setelah berhasil
+                loanDateInput.valueAsDate = new Date();
+                borrowerNameInput.value = currentUser.name;
+                borrowerClassInput.value = currentUser.class;
+                renderAll();
+            } else {
+                showNotification('Barang tidak tersedia atau tidak ditemukan!', false);
+            }
+        }
+        
+        window.returnItem = function(itemId) {
+            const item = inventory.find(i => i.id === itemId);
+            if (item && item.status === 'Dipinjam') {
+                item.status = 'Tersedia';
+                item.borrower = null;
+                item.borrowerClass = null;
+                item.loanDate = null;
+                item.returnDate = null;
+                item.extensionRequested = false;
+                showNotification(`"${item.name}" telah dikembalikan.`, true);
+                renderAll();
+            }
+        }
+        
+        window.reportDamageByAdmin = function(itemId) {
+             const item = inventory.find(i => i.id === itemId);
+             if (item) {
+                item.status = 'Rusak';
+                item.damageReport = 'Dilaporkan oleh Admin';
+                item.borrower = null;
+                item.borrowerClass = null;
+                item.loanDate = null;
+                item.returnDate = null;
+                item.extensionRequested = false;
+                showNotification(`Kerusakan pada "${item.name}" telah dilaporkan.`, true);
+                renderAll();
+             }
+        }
+        
+        window.repairItem = function(itemId) {
+            const item = inventory.find(i => i.id === itemId);
+            if(item && item.status === 'Rusak') {
+                item.status = 'Tersedia';
+                item.damageReport = null;
+                showNotification(`"${item.name}" telah diperbaiki dan tersedia kembali.`, true);
+                renderAll();
+            }
+        }
+        
+        window.requestExtension = function(itemId) {
+            const item = inventory.find(i => i.id === itemId);
+            if (item && item.status === 'Dipinjam') {
+                item.extensionRequested = true;
+                showNotification(`Permintaan perpanjangan untuk "${item.name}" telah diajukan.`, true);
+                renderAll();
+            }
+        }
+        
+        window.approveExtension = function(itemId) {
+            const item = inventory.find(i => i.id === itemId);
+            if (item && item.extensionRequested) {
+                const currentReturnDate = new Date(item.returnDate);
+                currentReturnDate.setDate(currentReturnDate.getDate() + 7); // Extend by 7 days
+                item.returnDate = currentReturnDate.toISOString().split('T')[0];
+                item.extensionRequested = false;
+                showNotification(`Perpanjangan untuk "${item.name}" disetujui.`, true);
+                renderAll();
+            }
+        }
+        
+        // === Fungsi Laporan ===
+        function generateDamageReport() {
+            const damagedItems = inventory.filter(item => item.status === 'Rusak');
+            const today = new Date();
+            const formattedDate = today.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            reportDateEl.textContent = `Tanggal: ${formattedDate}`;
+            reportDateSignatureEl.textContent = today.toLocaleDateString('id-ID');
+
+            if (damagedItems.length === 0) {
+                reportContentEl.innerHTML = `<p class="text-center py-10 text-gray-600">Tidak ada barang yang dilaporkan rusak saat ini.</p>`;
+            } else {
+                let table = `
+                    <table class="w-full text-sm text-left text-gray-700 border-collapse border border-gray-400">
+                        <thead class="text-xs text-gray-800 uppercase bg-gray-200">
+                            <tr>
+                                <th class="px-4 py-2 border border-gray-400">No.</th>
+                                <th class="px-4 py-2 border border-gray-400">Nama Barang</th>
+                                <th class="px-4 py-2 border border-gray-400">Deskripsi</th>
+                                <th class="px-4 py-2 border border-gray-400">Catatan Kerusakan</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                damagedItems.forEach((item, index) => {
+                    table += `
+                        <tr class="bg-white border-b">
+                            <td class="px-4 py-2 border border-gray-400">${index + 1}</td>
+                            <td class="px-4 py-2 border border-gray-400 font-medium">${item.name}</td>
+                            <td class="px-4 py-2 border border-gray-400">${item.description}</td>
+                            <td class="px-4 py-2 border border-gray-400">${item.damageReport || '-'}</td>
+                        </tr>`;
+                });
+                table += `</tbody></table>`;
+                reportContentEl.innerHTML = table;
+            }
+
+            // Tampilkan layar laporan
+            appScreen.classList.add('hidden');
+            reportScreen.classList.remove('hidden');
+            setTimeout(() => reportScreen.classList.remove('opacity-0'), 10);
+        }
+
+
+        // === Fungsi Render Tampilan ===
+        function showNotification(message, isSuccess = true) {
+            notificationMessage.textContent = message;
+            notificationIcon.className = isSuccess ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            notification.className = `fixed top-5 right-5 text-white py-3 px-5 rounded-lg shadow-lg opacity-0 transform -translate-y-10 flex items-center gap-3 ${isSuccess ? 'bg-green-500' : 'bg-red-500'}`;
+            requestAnimationFrame(() => notification.classList.remove('opacity-0', '-translate-y-10'));
+            setTimeout(() => notification.classList.add('opacity-0', '-translate-y-10'), 3000);
+        }
+        
+        function renderMyLoans() {
+            myLoansList.innerHTML = '';
+            const myItems = inventory.filter(item => item.borrower === currentUser.name);
+
+            if(myItems.length === 0) {
+                myLoansList.innerHTML = `<p class="text-sm text-gray-500 text-center py-4">Anda belum meminjam barang.</p>`;
+                return;
+            }
+
+            myItems.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'p-3 bg-sky-50 rounded-lg border border-sky-200';
+
+                let actionButtonsHTML = '<div class="flex gap-2 mt-2">';
+                if (item.extensionRequested) {
+                    actionButtonsHTML += `
+                        <button class="w-1/2 text-xs font-semibold py-1.5 px-3 rounded-md bg-gray-300 text-gray-600 cursor-not-allowed flex items-center justify-center gap-2" disabled>
+                            <i class="fas fa-clock"></i> Menunggu
+                        </button>`;
+                } else {
+                    actionButtonsHTML += `
+                        <button onclick="requestExtension(${item.id})" class="w-1/2 text-xs font-semibold text-white py-1.5 px-3 rounded-md bg-indigo-500 hover:bg-indigo-600 flex items-center justify-center gap-2">
+                            <i class="fas fa-plus-circle"></i> Perpanjang
+                        </button>`;
+                }
+                actionButtonsHTML += `
+                     <button onclick="openDamageReportModal(${item.id})" class="w-1/2 text-xs font-semibold text-white py-1.5 px-3 rounded-md bg-red-500 hover:bg-red-600 flex items-center justify-center gap-2">
+                         <i class="fas fa-exclamation-triangle"></i> Laporkan Rusak
+                    </button>
+                `;
+                actionButtonsHTML += '</div>';
+
+                itemDiv.innerHTML = `
+                    <p class="font-semibold text-gray-800">${item.name}</p>
+                    <p class="text-xs text-gray-600">${item.description}</p>
+                    <div class="text-xs mt-2 pt-2 border-t border-sky-100 flex justify-between">
+                        <span>Dipinjam: <strong>${item.loanDate}</strong></span>
+                        <span>Kembali: <strong>${item.returnDate}</strong></span>
+                    </div>
+                    ${actionButtonsHTML}
+                `;
+                myLoansList.appendChild(itemDiv);
+            });
+        }
+        
+        function renderTable() {
+            tableHead.innerHTML = '';
+            let headers = `
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Barang</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            `;
+            if(currentUser.role === 'admin') {
+                headers += `<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tenggat Waktu</th>`;
+            }
+            headers += `<th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>`;
+            tableHead.innerHTML = `<tr>${headers}</tr>`;
+
+            tableBody.innerHTML = '';
+            if (inventory.length === 0) {
+                const colspan = currentUser.role === 'admin' ? 4 : 3;
+                tableBody.innerHTML = `<tr><td colspan="${colspan}" class="text-center py-10 text-gray-500">Belum ada barang inventaris.</td></tr>`;
+                return;
+            }
+
+            inventory.forEach(item => {
+                const row = document.createElement('tr');
+                let statusClass, statusInfo;
+                switch(item.status) {
+                    case 'Tersedia':
+                        statusClass = 'bg-emerald-100 text-emerald-800';
+                        break;
+                    case 'Dipinjam':
+                         statusClass = 'bg-amber-100 text-amber-800';
+                         break;
+                    case 'Rusak':
+                        statusClass = 'bg-slate-200 text-slate-800';
+                        break;
+                }
+                
+                statusInfo = `<span class="px-2.5 py-0.5 inline-flex items-center gap-2 text-xs leading-5 font-semibold rounded-full ${statusClass}">${item.status}</span>`;
+
+                if (item.status === 'Rusak' && item.damageReport && currentUser.role === 'admin') {
+                    statusInfo += `<i class="fas fa-info-circle text-gray-500 cursor-pointer" title="${item.damageReport}"></i>`;
+                }
+                
+                if(item.status === 'Dipinjam'){
+                    statusInfo += `<div class="text-xs text-gray-500 mt-1">oleh <strong>${item.borrower}</strong> (${item.borrowerClass})</div><div class="text-xs text-gray-500">(${item.loanDate})</div>`;
+                    
+                    if (currentUser.role === 'admin' && item.returnDate) {
+                        const today = new Date(); today.setHours(0, 0, 0, 0);
+                        const returnDate = new Date(item.returnDate);
+                        const timeDiff = returnDate.getTime() - today.getTime();
+                        const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                        let warningMessage = '', warningClass = '';
+                        if (dayDiff < 0) {
+                            warningMessage = `Terlambat ${Math.abs(dayDiff)} hari`;
+                            warningClass = 'bg-red-200 text-red-800';
+                        } else if (dayDiff <= 2) {
+                             warningMessage = `Kembalikan dalam ${dayDiff} hari`;
+                             warningClass = 'bg-yellow-200 text-yellow-800';
+                        }
+                        if(warningMessage){
+                            statusInfo += `<div class="mt-1.5 px-2 py-0.5 inline-flex items-center gap-1.5 text-xs font-semibold rounded-full ${warningClass}"><i class="fas fa-exclamation-triangle"></i>${warningMessage}</div>`;
+                        }
+                    }
+                     if (currentUser.role === 'admin' && item.extensionRequested) {
+                        statusInfo += `<div class="mt-1.5 px-2 py-0.5 inline-flex items-center gap-1.5 text-xs font-semibold rounded-full bg-blue-200 text-blue-800"><i class="fas fa-hourglass-half"></i>Perpanjangan Diminta</div>`;
+                    }
+                }
+                
+                let rowContent = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-semibold text-gray-900">${item.name}</div>
+                        <div class="text-xs text-gray-500">${item.description}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm"><div class="flex items-center gap-2">${statusInfo}</div></td>
+                `;
+
+                if (currentUser.role === 'admin') {
+                    rowContent += `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600">${item.returnDate || '-'}</td>`;
+                }
+                
+                let actionCellContent;
+                if(currentUser.role === 'admin') {
+                    actionCellContent = '<div class="flex flex-col items-center gap-1.5">';
+                    if (item.status === 'Dipinjam') {
+                        if (item.extensionRequested) {
+                             actionCellContent += `<button onclick="approveExtension(${item.id})" class="text-white font-bold py-1 px-3 rounded-md text-xs bg-purple-500 hover:bg-purple-600 w-32 transition-colors">Setujui Perpanjangan</button>`;
+                        }
+                        actionCellContent += `<button onclick="returnItem(${item.id})" class="text-white font-bold py-1 px-3 rounded-md text-xs bg-blue-500 hover:bg-blue-600 w-32 transition-colors">Tandai Kembali</button>`;
+                    } else if (item.status === 'Tersedia') {
+                        actionCellContent += `<div class="flex items-center justify-center gap-1.5 text-emerald-600 font-semibold text-xs h-[22px] w-32">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Tersedia</span>
+                            </div>`;
+                    }
+                    
+                    if(item.status === 'Rusak') {
+                        actionCellContent += `<button onclick="repairItem(${item.id})" class="text-white font-bold py-1 px-3 rounded-md text-xs bg-green-500 hover:bg-green-600 w-32 transition-colors flex items-center justify-center gap-1"><i class="fas fa-tools"></i>Perbaiki</button>`;
+                    } else {
+                         actionCellContent += `<button onclick="reportDamageByAdmin(${item.id})" class="text-white font-bold py-1 px-3 rounded-md text-xs bg-red-500 hover:bg-red-600 w-32 transition-colors flex items-center justify-center gap-1"><i class="fas fa-exclamation-triangle"></i>Laporkan Rusak</button>`;
+                    }
+                    actionCellContent += '</div>';
+
+                } else {
+                    actionCellContent = '<span class="text-xs text-gray-400 font-medium">Hanya Admin</span>';
+                }
+
+                rowContent += `<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">${actionCellContent}</td>`;
+                
+                row.innerHTML = rowContent;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        function populateItemSelect() {
+            itemSelect.innerHTML = '<option value="" disabled selected>Pilih barang yang tersedia...</option>';
+            const availableItems = inventory.filter(item => item.status === 'Tersedia');
+            if (availableItems.length === 0) {
+                 itemSelect.innerHTML = '<option value="" disabled>Semua barang sedang dipinjam atau rusak</option>';
+            } else {
+                 availableItems.forEach(item => {
+                    itemSelect.innerHTML += `<option value="${item.id}">${item.name}</option>`;
+                });
+            }
+        }
+        
+        function renderAll() {
+            if (currentUser && currentUser.role === 'siswa') {
+                renderMyLoans();
+            }
+            renderTable();
+            populateItemSelect();
+        }
+        
+        // === Event Listeners ===
+        studentLoginForm.addEventListener('submit', handleStudentLogin);
+        adminLoginForm.addEventListener('submit', handleAdminLogin);
+        logoutButton.addEventListener('click', handleLogout);
+        loanForm.addEventListener('submit', borrowItem);
+        damageReportForm.addEventListener('submit', handleDamageReport);
+
+        showAdminLoginBtn.addEventListener('click', () => {
+            studentLoginDiv.classList.add('hidden');
+            adminLoginDiv.classList.remove('hidden');
+        });
+
+        showStudentLoginBtn.addEventListener('click', () => {
+            adminLoginDiv.classList.add('hidden');
+            studentLoginDiv.classList.remove('hidden');
+        });
+
+        showAddItemModalBtn.addEventListener('click', () => openModal(addItemModal));
+        
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.querySelector('.close-modal-btn').addEventListener('click', () => closeModal(modal));
+            modal.querySelector('.cancel-btn').addEventListener('click', () => closeModal(modal));
+        });
+        
+        addItemForm.addEventListener('submit', handleAddItem);
+
+        generateReportBtn.addEventListener('click', generateDamageReport);
+        printReportBtn.addEventListener('click', () => window.print());
+        backToDashboardBtn.addEventListener('click', () => {
+            reportScreen.classList.add('hidden');
+            appScreen.classList.remove('hidden');
+        });
+
+
+        // Inisialisasi aplikasi
+        document.addEventListener('DOMContentLoaded', () => {
+            loanDateInput.valueAsDate = new Date();
+        });
+    </script>
+</body>
+</html>
+
+
