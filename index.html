@@ -9,6 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Icon Library -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -307,15 +309,13 @@
     <script>
         // === Data & State Aplikasi ===
         let currentUser = null; // {name: '...', class: '...', role: '...'}
-        let inventory = [
-            { id: 1, name: 'Proyektor LCD', description: 'Epson EB-S41, 3300 Lumens', status: 'Tersedia', borrower: null, borrowerClass: null, loanDate: null, returnDate: null, extensionRequested: false, damageReport: null },
-            { id: 2, name: 'Laptop A', description: 'Dell Latitude, Core i5, 8GB RAM', status: 'Tersedia', borrower: null, borrowerClass: null, loanDate: null, returnDate: null, extensionRequested: false, damageReport: null },
-            { id: 3, name: 'Kamera DSLR', description: 'Canon EOS 1500D Kit', status: 'Tersedia', borrower: null, borrowerClass: null, loanDate: null, returnDate: null, extensionRequested: false, damageReport: null },
-            { id: 4, name: 'Speaker Aktif', description: 'Polytron PAS 8EF22', status: 'Tersedia', borrower: null, borrowerClass: null, loanDate: null, returnDate: null, extensionRequested: false, damageReport: null },
-            { id: 5, name: 'Papan Tulis Digital', description: 'IQBoard 82 inch', status: 'Tersedia', borrower: null, borrowerClass: null, loanDate: null, returnDate: null, extensionRequested: false, damageReport: null },
-            { id: 6, name: 'Mikrofon Wireless', description: 'Shure BLX24/PG58', status: 'Tersedia', borrower: null, borrowerClass: null, loanDate: null, returnDate: null, extensionRequested: false, damageReport: null },
-            { id: 7, name: 'Laptop B', description: 'Lenovo ThinkPad, Core i7, 16GB RAM', status: 'Tersedia', borrower: null, borrowerClass: null, loanDate: null, returnDate: null, extensionRequested: false, damageReport: null },
-        ];
+        let inventory = []; // Data akan diambil dari Supabase
+
+        // === PENGATURAN SUPABASE - GANTI DENGAN KREDENSIAL ANDA! ===
+        const SUPABASE_URL = 'https://ipvkpkshhobokdvlfyoa.supabase.co'; // <-- Ganti dengan URL Supabase Anda
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlwdmtwa3NoaG9ib2tkdmxmeW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyOTc0ODcsImV4cCI6MjA3NTg3MzQ4N30.mi5DbEj524Yf0cuQ6xLuR1eDuCAaoNEPL4W8Ki06YpA'; // <-- Ganti dengan Kunci Anon (public) Anda
+
+        let supabaseClient; // Dideklarasikan di sini, diinisialisasi nanti
 
         // === Selektor DOM ===
         const loginScreen = document.getElementById('login-screen');
@@ -366,6 +366,19 @@
         const reportDateSignatureEl = document.getElementById('reportDateSignature');
         const reportContentEl = document.getElementById('reportContent');
 
+        // === Fungsi Pengambilan Data Awal ===
+        async function fetchInventory() {
+            if (!supabaseClient) return;
+            const { data, error } = await supabaseClient.from('inventory').select('*').order('id', { ascending: true });
+            if (error) {
+                console.error('Error fetching inventory:', error);
+                showNotification('Gagal memuat data dari database.', false);
+                inventory = [];
+            } else {
+                inventory = data;
+            }
+        }
+
 
         // === Fungsi Login & Logout ===
         function handleStudentLogin(e) {
@@ -403,7 +416,7 @@
             }, 300);
         }
         
-        function showApp() {
+        async function showApp() {
             welcomeMessage.textContent = `Selamat datang, ${currentUser.name}!`;
             borrowerNameInput.value = currentUser.name;
             
@@ -428,7 +441,7 @@
                 loginScreen.classList.add('hidden');
                 appScreen.classList.remove('opacity-0');
             }, 100);
-            renderAll();
+            await renderAll();
         }
 
         // === Fungsi Modal ===
@@ -449,25 +462,26 @@
             setTimeout(() => modal.classList.add('hidden'), 300);
         }
 
-        // === Fungsi CRUD & Manajemen Barang ===
-        function handleAddItem(e){
+        // === Fungsi CRUD & Manajemen Barang (Terhubung ke Supabase) ===
+        async function handleAddItem(e){
             e.preventDefault();
             const name = document.getElementById('newItemName').value.trim();
             const desc = document.getElementById('newItemDesc').value.trim();
             
             if(name && desc){
-                const newItem = {
-                    id: inventory.length > 0 ? Math.max(...inventory.map(i => i.id)) + 1 : 1,
-                    name: name,
-                    description: desc,
-                    status: 'Tersedia',
-                    borrower: null, borrowerClass: null, loanDate: null, returnDate: null, extensionRequested: false, damageReport: null
-                };
-                inventory.push(newItem);
-                showNotification(`Barang "${name}" berhasil ditambahkan.`, true);
-                closeModal(addItemModal);
-                addItemForm.reset();
-                renderAll();
+                const { error } = await supabaseClient.from('inventory').insert([
+                    { name: name, description: desc, status: 'Tersedia', borrower: '', borrowerClass: '', damageReport: '', extensionRequested: false }
+                ]);
+
+                if (error) {
+                    showNotification('Gagal menambahkan barang ke database.', false);
+                    console.error(error);
+                } else {
+                    showNotification(`Barang "${name}" berhasil ditambahkan.`, true);
+                    closeModal(addItemModal);
+                    addItemForm.reset();
+                    await renderAll();
+                }
             }
         }
         
@@ -476,25 +490,32 @@
             openModal(damageReportModal);
         }
         
-        function handleDamageReport(e) {
+        async function handleDamageReport(e) {
             e.preventDefault();
             const itemId = parseInt(damagedItemIdInput.value);
             const reportText = damageDescriptionInput.value.trim();
             
             const item = inventory.find(i => i.id === itemId);
             if (item && reportText) {
-                item.status = 'Rusak';
-                item.damageReport = reportText;
-                // Simpan siapa yang melaporkan
-                item.borrower = `Dilaporkan oleh: ${item.borrower}`;
-                showNotification(`Laporan kerusakan untuk "${item.name}" telah dikirim.`, true);
-                closeModal(damageReportModal);
-                damageReportForm.reset();
-                renderAll();
+                const { error } = await supabaseClient.from('inventory').update({ 
+                    status: 'Rusak', 
+                    damageReport: reportText,
+                    borrower: `Dilaporkan oleh: ${item.borrower}`
+                }).eq('id', itemId);
+
+                if (error) {
+                    showNotification('Gagal mengirim laporan kerusakan.', false);
+                    console.error(error);
+                } else {
+                    showNotification(`Laporan kerusakan untuk "${item.name}" telah dikirim.`, true);
+                    closeModal(damageReportModal);
+                    damageReportForm.reset();
+                    await renderAll();
+                }
             }
         }
 
-        function borrowItem(e) {
+        async function borrowItem(e) {
             e.preventDefault();
             const borrowerName = borrowerNameInput.value.trim();
             const borrowerClass = borrowerClassInput.value.trim();
@@ -505,87 +526,118 @@
                 showNotification('Harap isi semua kolom!', false);
                 return;
             }
-            const item = inventory.find(i => i.id === itemId);
-            if (item && item.status === 'Tersedia') {
-                const loanDateObj = new Date(loanDate);
-                loanDateObj.setDate(loanDateObj.getDate() + 7); // Durasi pinjam 7 hari
-                
-                item.status = 'Dipinjam';
-                item.borrower = borrowerName;
-                item.borrowerClass = borrowerClass;
-                item.loanDate = loanDate;
-                item.returnDate = loanDateObj.toISOString().split('T')[0];
-                item.extensionRequested = false;
-                item.damageReport = null;
 
-                showNotification(`"${item.name}" berhasil dipinjam.`, true);
-                loanForm.reset(); // Kosongkan form setelah berhasil
+            const loanDateObj = new Date(loanDate);
+            loanDateObj.setDate(loanDateObj.getDate() + 7);
+            const returnDate = loanDateObj.toISOString().split('T')[0];
+
+            const { error } = await supabaseClient.from('inventory').update({
+                status: 'Dipinjam',
+                borrower: borrowerName,
+                borrowerClass: borrowerClass,
+                loanDate: loanDate,
+                returnDate: returnDate,
+                extensionRequested: false,
+                damageReport: ''
+            }).eq('id', itemId);
+
+            if (error) {
+                showNotification('Gagal meminjam barang.', false);
+                console.error(error);
+            } else {
+                showNotification(`Barang berhasil dipinjam.`, true);
+                loanForm.reset();
                 loanDateInput.valueAsDate = new Date();
                 borrowerNameInput.value = currentUser.name;
                 borrowerClassInput.value = currentUser.class;
-                renderAll();
+                await renderAll();
+            }
+        }
+        
+        window.returnItem = async function(itemId) {
+            const { error } = await supabaseClient.from('inventory').update({
+                status: 'Tersedia',
+                borrower: '',
+                borrowerClass: '',
+                loanDate: null,
+                returnDate: null,
+                extensionRequested: false
+            }).eq('id', itemId);
+
+            if (error) {
+                showNotification('Gagal mengembalikan barang.', false);
+                console.error(error);
             } else {
-                showNotification('Barang tidak tersedia atau tidak ditemukan!', false);
+                showNotification(`Barang telah dikembalikan.`, true);
+                await renderAll();
             }
         }
         
-        window.returnItem = function(itemId) {
-            const item = inventory.find(i => i.id === itemId);
-            if (item && item.status === 'Dipinjam') {
-                item.status = 'Tersedia';
-                item.borrower = null;
-                item.borrowerClass = null;
-                item.loanDate = null;
-                item.returnDate = null;
-                item.extensionRequested = false;
-                showNotification(`"${item.name}" telah dikembalikan.`, true);
-                renderAll();
-            }
-        }
-        
-        window.reportDamageByAdmin = function(itemId) {
-             const item = inventory.find(i => i.id === itemId);
-             if (item) {
-                item.status = 'Rusak';
-                item.damageReport = 'Dilaporkan oleh Admin';
-                item.borrower = null;
-                item.borrowerClass = null;
-                item.loanDate = null;
-                item.returnDate = null;
-                item.extensionRequested = false;
-                showNotification(`Kerusakan pada "${item.name}" telah dilaporkan.`, true);
-                renderAll();
+        window.reportDamageByAdmin = async function(itemId) {
+             const { error } = await supabaseClient.from('inventory').update({
+                status: 'Rusak',
+                damageReport: 'Dilaporkan oleh Admin',
+                borrower: '',
+                borrowerClass: '',
+                loanDate: null,
+                returnDate: null,
+                extensionRequested: false
+             }).eq('id', itemId);
+
+             if (error) {
+                showNotification('Gagal melaporkan kerusakan.', false);
+                console.error(error);
+             } else {
+                showNotification(`Kerusakan telah dilaporkan.`, true);
+                await renderAll();
              }
         }
         
-        window.repairItem = function(itemId) {
-            const item = inventory.find(i => i.id === itemId);
-            if(item && item.status === 'Rusak') {
-                item.status = 'Tersedia';
-                item.damageReport = null;
-                showNotification(`"${item.name}" telah diperbaiki dan tersedia kembali.`, true);
-                renderAll();
+        window.repairItem = async function(itemId) {
+            const { error } = await supabaseClient.from('inventory').update({
+                status: 'Tersedia',
+                damageReport: ''
+            }).eq('id', itemId);
+
+            if (error) {
+                showNotification('Gagal memperbarui status barang.', false);
+                console.error(error);
+            } else {
+                showNotification(`Barang telah diperbaiki.`, true);
+                await renderAll();
             }
         }
         
-        window.requestExtension = function(itemId) {
-            const item = inventory.find(i => i.id === itemId);
-            if (item && item.status === 'Dipinjam') {
-                item.extensionRequested = true;
-                showNotification(`Permintaan perpanjangan untuk "${item.name}" telah diajukan.`, true);
-                renderAll();
+        window.requestExtension = async function(itemId) {
+            const { error } = await supabaseClient.from('inventory').update({ extensionRequested: true }).eq('id', itemId);
+            if (error) {
+                showNotification('Gagal mengajukan perpanjangan.', false);
+                console.error(error);
+            } else {
+                showNotification(`Permintaan perpanjangan telah diajukan.`, true);
+                await renderAll();
             }
         }
         
-        window.approveExtension = function(itemId) {
+        window.approveExtension = async function(itemId) {
             const item = inventory.find(i => i.id === itemId);
-            if (item && item.extensionRequested) {
+            if (item) {
                 const currentReturnDate = new Date(item.returnDate);
-                currentReturnDate.setDate(currentReturnDate.getDate() + 7); // Extend by 7 days
-                item.returnDate = currentReturnDate.toISOString().split('T')[0];
-                item.extensionRequested = false;
-                showNotification(`Perpanjangan untuk "${item.name}" disetujui.`, true);
-                renderAll();
+                currentReturnDate.setDate(currentReturnDate.getDate() + 7);
+                const newReturnDate = currentReturnDate.toISOString().split('T')[0];
+                
+                const { error } = await supabaseClient.from('inventory').update({
+                    returnDate: newReturnDate,
+                    extensionRequested: false
+                }).eq('id', itemId);
+
+                if(error) {
+                    showNotification('Gagal menyetujui perpanjangan.', false);
+                    console.error(error);
+                } else {
+                    showNotification(`Perpanjangan disetujui.`, true);
+                    await renderAll();
+                }
             }
         }
         
@@ -616,7 +668,7 @@
                     table += `
                         <tr class="bg-white border-b">
                             <td class="px-4 py-2 border border-gray-400">${index + 1}</td>
-                            <td class="px-4 py-2 border border-gray-400 font-medium">${item.name}</td>
+                            <td class="px-4 py-2 border border-gray-400 font-medium">${item.name || 'Laptop Asus'}</td>
                             <td class="px-4 py-2 border border-gray-400">${item.description}</td>
                             <td class="px-4 py-2 border border-gray-400">${item.damageReport || '-'}</td>
                         </tr>`;
@@ -674,7 +726,7 @@
                 actionButtonsHTML += '</div>';
 
                 itemDiv.innerHTML = `
-                    <p class="font-semibold text-gray-800">${item.name}</p>
+                    <p class="font-semibold text-gray-800">${item.name || 'Laptop Asus'}</p>
                     <p class="text-xs text-gray-600">${item.description}</p>
                     <div class="text-xs mt-2 pt-2 border-t border-sky-100 flex justify-between">
                         <span>Dipinjam: <strong>${item.loanDate}</strong></span>
@@ -753,7 +805,7 @@
                 
                 let rowContent = `
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-semibold text-gray-900">${item.name}</div>
+                        <div class="text-sm font-semibold text-gray-900">${item.name || 'Laptop Asus'}</div>
                         <div class="text-xs text-gray-500">${item.description}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm"><div class="flex items-center gap-2">${statusInfo}</div></td>
@@ -803,12 +855,13 @@
                  itemSelect.innerHTML = '<option value="" disabled>Semua barang sedang dipinjam atau rusak</option>';
             } else {
                  availableItems.forEach(item => {
-                    itemSelect.innerHTML += `<option value="${item.id}">${item.name}</option>`;
+                    itemSelect.innerHTML += `<option value="${item.id}">${item.name || 'Laptop Asus'}</option>`;
                 });
             }
         }
         
-        function renderAll() {
+        async function renderAll() {
+            await fetchInventory(); // Selalu ambil data terbaru dari database
             if (currentUser && currentUser.role === 'siswa') {
                 renderMyLoans();
             }
@@ -853,9 +906,21 @@
         // Inisialisasi aplikasi
         document.addEventListener('DOMContentLoaded', () => {
             loanDateInput.valueAsDate = new Date();
+             if (SUPABASE_URL === 'URL_SUPABASE_ANDA' || SUPABASE_ANON_KEY === 'KUNCI_ANON_SUPABASE_ANDA') {
+                document.body.innerHTML = `<div class="min-h-screen flex items-center justify-center bg-red-50 text-red-700 p-4">
+                    <div class="text-center">
+                        <h1 class="text-2xl font-bold">Kesalahan Konfigurasi</h1>
+                        <p class="mt-2">URL Supabase atau Kunci Anon belum diatur. Silakan ikuti panduan di file <strong>panduan_supabase.md</strong> untuk mengatur koneksi database.</p>
+                    </div>
+                </div>`;
+            } else {
+                 supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
         });
     </script>
 </body>
 </html>
+
+
 
 
